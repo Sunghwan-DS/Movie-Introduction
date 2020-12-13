@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load bootstrap4 %}
+{% load bootstrap_pagination %}
+
+{% block body %}
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <h2 style="text-align:center;"><i class="fas fa-award"></i> 랭킹 <i class="fas fa-award"></i></h2>
+          <hr width="100px">
+            <ul class="nav nav-tabs justify-content-center">
+              <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#liked">좋아요 Top10</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#hits">조회 수 Top10</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#comments">댓글 수 Top10</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#live">실시간 Top10</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#user_rank">유저 Top10</a>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane fade show active" id="liked">
+              <p>
+                <table class="table table-striped">
+                  <thead class="thead-dark">
+                    <tr>
+                      <th scope="col">랭킹</th>
+                      <th scope="col">제목</th>
+                      <th scope="col">작성자</th>
+                      <th scope="col">평점</th>
+                      <th scope="col">좋아요</th>
+                      <th scope="col">조회수</th>
+                    </tr>
+                  </thead>
+                  {% for review in manyLikedReviews %}
+                    <tr>
+                      <th scope="row">{{ forloop.counter }}</th>
+                      <td><a href="{% url 'movies:review_detail' review.movie.pk review.pk %}" class="text-dark">{{review.title}}
+                      {% if review.comment_set.all.count > 0 %}
+                        <span>({{ review.comment_set.all.count }})</span>
+                      {% endif %}
+                      </a></th>
+                      <td><a href="{% url 'accounts:detail' review.user.pk %}" class="text-dark">{{ review.user.nickname }}</a></td>
+                      <td>{{ review.rank }}</td>
+                      <td>{{review.like_users.count}}</td>
+                      <td>{{ review.hit }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                </p>
+              </div>
+              <div class="tab-pane fade" id="hits">
+                <p>
+                <table class="table table-striped">
+                  <thead class="thead-dark">
+                    <tr>
+                      <th scope="col">랭킹</th>
+                      <th scope="col">제목</th>
+                      <th scope="col">작성자</th>
+                      <th scope="col">평점</th>
+                      <th scope="col">좋아요</th>
+                      <th scope="col">조회수</th>
+                    </tr>
+                  </thead>
+                  {% for review in manyHitsReviews %}
+                    <tr>
+                      <th scope="row">{{ forloop.counter }}</th>
+                      <td><a href="{% url 'movies:review_detail' review.movie.pk review.pk %}" class="text-dark">{{review.title}}
+                      {% if review.comment_set.all.count > 0 %}
+                        <span>({{ review.comment_set.all.count }})</span>
+                      {% endif %}
+                      </a></th>
+                      <td><a href="{% url 'accounts:detail' review.user.pk %}" class="text-dark">{{ review.user.nickname }}</a></td>
+                      <td>{{ review.rank }}</td>
+                      <td>{{review.like_users.count}}</td>
+                      <td>{{ review.hit }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                </p>
+              </div>
+              <div class="tab-pane fade" id="comments">
+                <p>
+                <table class="table table-striped">
+                  <thead class="thead-dark">
+                    <tr>
+                      <th scope="col">랭킹</th>
+                      <th scope="col">제목</th>
+                      <th scope="col">작성자</th>
+                      <th scope="col">평점</th>
+                      <th scope="col">좋아요</th>
+                      <th scope="col">조회수</th>
+                    </tr>
+                  </thead>
+                  {% for review in manyCommentsReviews %}
+                    <tr>
+                      <th scope="row">{{ forloop.counter }}</th>
+                      <td><a href="{% url 'movies:review_detail' review.movie.pk review.pk %}" class="text-dark">{{review.title}}
+                      {% if review.comment_set.all.count > 0 %}
+                        <span>({{ review.comment_set.all.count }})</span>
+                      {% endif %}
+                      </a></th>
+                      <td><a href="{% url 'accounts:detail' review.user.pk %}" class="text-dark">{{ review.user.nickname }}</a></td>
+                      <td>{{ review.rank }}</td>
+                      <td>{{review.like_users.count}}</td>
+                      <td>{{ review.hit }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                </p>
+              </div>
+              <div class="tab-pane fade" id="live">
+                <p>
+                <table class="table table-striped">
+                  <thead class="thead-dark">
+                    <tr>
+                      <th scope="col">랭킹</th>
+                      <th scope="col">제목</th>
+                      <th scope="col">작성자</th>
+                      <th scope="col">평점</th>
+                      <th scope="col">좋아요</th>
+                      <th scope="col">조회수</th>
+                    </tr>
+                  </thead>
+                  {% for review in manyHitsReviews %}
+                    <tr>
+                      <th scope="row">{{ forloop.counter }}</th>
+                      <td><a href="{% url 'movies:review_detail' review.movie.pk review.pk %}" class="text-dark">{{review.title}}
+                      {% if review.comment_set.all.count > 0 %}
+                        <span>({{ review.comment_set.all.count }})</span>
+                      {% endif %}
+                      </a></th>
+                      <td><a href="{% url 'accounts:detail' review.user.pk %}" class="text-dark">{{ review.user.nickname }}</a></td>
+                      <td>{{ review.rank }}</td>
+                      <td>{{review.like_users.count}}</td>
+                      <td>{{ review.hit }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                </p>
+              </div>
+              <div class="tab-pane fade" id="user_rank">
+                <p>
+                <table class="table table-striped">
+                  <thead class="thead-dark">
+                    <tr>
+                      <th scope="col">랭킹</th>
+                      <th scope="col">닉네임</th>
+                      <th scope="col">게시글 수</th>
+                      <th scope="col">댓글 수</th>
+                    </tr>
+                  </thead>
+                  {% for u in users_rank %}
+                    <tr>
+                      <th scope="row">{{ forloop.counter }}</th>
+                      <td><a href="{% url 'accounts:detail' u.pk %}" class="text-dark">{{ u.nickname }}</a></td>
+                      <td>{{ u.review_set.count }}</td>
+                      <td>{{ u.comment_set.count}} </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                </p>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+{% endblock %}

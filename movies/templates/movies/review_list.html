@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load bootstrap4 %}
+{% load bootstrap_pagination %}
+
+{% block body %}
+
+<style>
+  .show_img:hover {
+    border: 1px solid;
+  }
+</style>
+
+{% if flag %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  <strong>WARNING!</strong> 성인인증이 필요한 리뷰입니다.
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+{% endif %}
+
+<div class='container justify-content-center'>
+  <h2 style="text-align:center;">리뷰 목록</h2>
+  <hr width="150px">
+<table class="table table-striped">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Num</th>
+      <th scope="col">제목</th>
+      <th scope="col">영화제목</th>
+      <th scope="col">작성자</th>
+      <th scope="col">평점</th>
+      <th scope="col">좋아요</th>
+      <th scope="col">조회수</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for review in page_obj %}
+
+    <tr>
+      <th scope="row">{{review.pk}}</th>
+      {% if request.user.is_authenticated %}
+        {% if review.movie.watchGradeNm == 19 %}
+          {% if request.user.age < 19 %}
+            <td><a class="text-dark" data-toggle="modal" data-target="#exampleModal">
+              {{review.title}}
+          {% else %}
+          <td><a href="{% url 'movies:review_detail' review.movie.pk review.pk %}" class="text-dark">{{review.title}}
+          {% endif %}
+        {% else %}
+        <td><a href="{% url 'movies:review_detail' review.movie.pk review.pk %}" class="text-dark">{{review.title}}
+        {% endif %}
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    성인영화의 리뷰는 열람이 불가능합니다.
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+      {% else %}
+      <td><a href="{% url 'movies:review_detail' review.movie.pk review.pk %}" class="text-dark">{{review.title}}
+      {% endif %}
+
+
+      {% if review.comment_set.all.count > 0 %}
+        <span>({{ review.comment_set.all.count }})</span>
+      {% endif %}
+      </a></td>
+      <td><a href="{% url 'movies:movie_detail' review.movie.pk %}" class="text-dark">{{ review.movie.movieNm }}</a></td>
+      <td><a href="{% url 'accounts:detail' review.user.pk %}" class="text-dark">{{ review.user.nickname }}</a></td>
+      <td>{{ review.rank }}</td>
+      <td>{{review.like_users.count}}</td>
+      <td>{{ review.hit }}</td>
+    </tr>
+    {% endfor %}
+
+  </tbody>
+</table>
+<div class="pagination justify-content-center">
+    {% bootstrap_paginate page_obj range=10 show_prev_next="false" show_first_last="true" %}
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+{% block css %}
+<style>
+label {
+    font-size: 30px;
+}
+
+.helptext {
+    display: block;
+}
+</style>
+{% endblock %}
+{% block body %}
+<div style="text-align:center;">
+    <form action="" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="제출">
+    </form>
+
+</div>
+    <hr>
+    <div class="d-flex justify-content-end">
+        <button class="btn btn-primary mx-1" style="height: 38px;" onclick="goBack()"><i class="fas fa-arrow-left"></i> 이전페이지</button>
+    </div>
+<script type="text/javascript">
+  function goBack() {
+    window.history.back();
+}
+</script>
+{% endblock %}

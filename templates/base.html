@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+{% load static %}
+{% load bootstrap4 %}
+
+<html lang="ko">
+<head>
+  {% block css %}
+  {% endblock %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://kit.fontawesome.com/bae0c1046b.js" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/7121b7d2fc.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <!--index_header 용-->
+    <!--<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">-->
+    <!--<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>-->
+    <!--<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>-->
+    <title>{% block title %}{% endblock %}</title>
+    {% bootstrap_css %}
+    <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Jua&family=Poor+Story&family=Single+Day&display=swap" rel="stylesheet">
+
+    <style>
+      .clearfix::after {
+        content: "";
+        display: block;
+        clear: both;
+
+    }
+     body {
+       font-family: 'Jua', sans-serif;
+     }
+    </style>
+
+</head>
+<body class='bg-secondary'>
+  <nav class="navbar navbar-expand-lg navbar-light bg-dark fixed-top">
+    <a class="navbar-brand text-light" href="{% url 'movies:index' %}"><img src="/static/images/logo.png" style="height:40px" class="rounded"></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link text-light" href="{% url 'movies:index' %}"><i class="fas fa-home"></i>&nbsp;Home<span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link text-light" href="{% url 'movies:movie_list' %}"><i class="fas fa-video"></i>&nbsp;전체 영화보기</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link text-light" href="{% url 'movies:review_list' %}"><i class="fas fa-book-open"></i>&nbsp;전체 리뷰보기</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link text-light" href="{% url 'movies:rank' %}"><i class="fas fa-trophy"></i> 랭킹</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link text-light" href="http://ticket.movie.naver.com/Ticket/Reserve.aspx"><i class="fas fa-ticket-alt"></i>&nbsp;영화예매</a>
+        </li>
+        {% if request.user.is_authenticated %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle active text-light" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-user"></i>&nbsp;{{ request.user.nickname }} 님 환영합니다
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="{% url 'accounts:detail' request.user.pk %}"><i class="fas fa-user-edit"></i>&nbsp;회원정보</a>
+            <a class="dropdown-item" href="{% url 'accounts:logout' %}"><i class="fas fa-user-times"></i>&nbsp;로그아웃</a>
+        </li>
+        {% else %}
+            <li class="nav-item active">
+              <a class="nav-link text-light" href="{% url 'accounts:login' %}">로그인</a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link text-light" href="{% url 'accounts:signup' %}">회원가입</a>
+            </li>
+        {% endif %}
+
+      </ul>
+      <form class="form-inline my-2 my-lg-0" action="{% url 'movies:search' %}" method="GET" autocomplete="off">
+        <input class="form-control mr-sm-2" type="search" placeholder="영화 제목" aria-label="Search" name="search">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+      </form>
+    </div>
+  </nav>
+  <div class="container bg-light p-3 rounded" style="margin-top: 100px;">
+      {% block body %}
+      {% endblock %}
+  </div>
+  {% bootstrap_javascript jquery='full' %}
+
+</body>
+
+</html>

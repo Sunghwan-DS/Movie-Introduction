@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block body %}
+
+<h1><b>추천 영화 보기</b></h1>
+<p>본 영화 추천은 사용자의 관심 영화의 장르를 기반으로 하였습니다. </p>
+{% if favorite_genre %}
+<p>회원님의 최근 관심 장르는 {{ favorite_genre }} 입니다.</p>
+{% else %}
+회원님은 아직 관심 장르가 없습니다.<br>
+이런 영화는 어떠신가요?
+{% endif %}
+<hr>
+
+
+<section style="font-family: 'Ubuntu', sans-serif;">
+  <div class='container justify-content-center'>
+    <div class='row my-2 justify-content-center'>
+
+      {% for movie in recommend_movies %}
+        <article class='mb-3'>
+          <div class="col-12 col-sm-6 col-md-4 justify-content-center animated bounce">
+            <div class="card justify-content-center" style="width: 18rem;" >
+
+              <a href="{% url 'movies:movie_detail' movie.pk %}"><img src="{{movie.poster_path}}" class="card-img-top" alt="..." style='height:412px;'></a>
+              <div class="card-body">
+
+                <p class="card-text">
+                  <p>{{ movie.movieNm }} <span class="badge badge-warning text-light">{{ movie.vote_average }}</span>
+                  {% for genre in movie.genres.all %}
+                    <span class="badge badge-primary text-light">{{ genre.name }}</span>
+                  {% endfor %}
+                  </p>
+                  <hr>
+                  {% if movie.overview|length > 50 %}
+                  {{ movie.overview|slice:':50' }}...
+                  {% else %}
+                  {{ movie.overview|slice:':50' }}
+                  {% endif %}
+
+                </p>
+              </div>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}

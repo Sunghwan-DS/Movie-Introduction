@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+{% load static %}
+
+{% block body %}
+{% if request.user == user %}
+    <div class="d-flex flex-row">
+      <h2 class="ml-4 mr-3" style="margin-bottom: 0px;"><i class="fas fa-house-user"></i>&nbsp;My Page</h2>
+      <a class="btn btn-primary mx-1 d-flex align-items-center" href="{% url 'movies:recommend'%}" role="button">사용자 영화추천</a>
+      <a class="btn btn-danger mx-1 d-flex align-items-center" href="" data-toggle="modal" data-target="#exampleModal"><i class="fas fa-user-slash"></i>&nbsp;회원탈퇴</a>
+    </div>
+    <hr>
+    <div class="d-flex justify-content-between ml-5">
+      <div class="d-flex flex-column">
+      <h4>아이디: {{ user.username }}</h4>
+      <h4>닉네임: {{ user.nickname }}</h4>
+      <h4>성별: {{ user.sex }}</h4>
+      <h4>나이: {{ plus_age }}</h4>
+
+
+
+
+{% else %}
+    <h2><i class="fas fa-house-user"></i>&nbsp;{{ user.nickname }}'s Page</h2>
+      {% if request.user in user.followers.all %}
+          <a href="{% url 'accounts:follow' user.pk %}"><i class="fas fa-user-minus"></i>&nbsp;팔로우 취소</a>
+      {% else%}
+          <a href="{% url 'accounts:follow' user.pk %}"><i class="fas fa-user-plus"></i>&nbsp;팔로우</a>
+      {% endif %}
+<hr>
+{% endif %}
+<h4>최근 관심 장르:
+{% if favorite_genre %}
+{{ favorite_genre}}
+{% else %}
+관심 장르가 없습니다.
+{% endif %}
+</h4>
+
+{% if request.user == user %}
+    <h4>팔로잉한 유저:
+    {% for fw in request.user.followings.all %}
+        &nbsp;<a href="{% url 'accounts:detail' fw.pk %}">{{ fw.username }}</a>
+    {% endfor %}
+    </h4>
+    </div>
+{% endif %}
+    <div class="d-flex flex-column justify-content-center mr-5">
+      <h4>Follower: {{ user.followers.count }}</h4>
+      <h4>Following: {{ user.followings.count }}</h4>
+      <h4>게시글 수: {{ user.review_set.count }}</h4>
+      <h4>댓글 수: {{ user.comment_set.count }}</h4>
+      <h4>등급: {{ rank }}
+      {% if tier == 'gold' %}
+        <img src="{% static 'images/골드.png' %}" style="width: 28px;">
+      {% elif tier == 'silver' %}
+        <img src="{% static 'images/실버.png' %}" style="width: 28px;">
+      {% else %}
+        <img src="{% static 'images/브론즈.png' %}" style="width: 28px;">
+      {% endif %}
+      </h4>
+    </div>
+    <div></div>
+    </div>
+
+
+    <!--{% for history in request.user.userhistory_set.all %}-->
+    <!--  <h6>{{ forloop.counter }}.{{ history.movie_pk }}</h6>-->
+    <!--{% endfor %}-->
+
+    <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">회원탈퇴</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                정말 탈퇴하시겠습니까?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                <a href="{% url 'accounts:delete' %}" class="btn btn-danger">탈퇴</a>
+              </div>
+            </div>
+          </div>
+        </div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load bootstrap4 %}
+{% load bootstrap_pagination %}
+{% block body %}
+
+    <div class="container">
+      <div class="row">
+        <div class="col">
+            <ul class="nav nav-tabs justify-content-center">
+              <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#recent">최신영화</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#rank">평점 Top10</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#cnt">리뷰 수 Top10</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#live_rank">실시간 Top10</a>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane fade show active" id="recent">
+              <p>
+                {% for recommend_movie in recommend_recently %}
+                <a href="{% url 'movies:movie_detail' recommend_movie.pk %}" class="text-light">
+                  <div class="d-inline-block position-relative" style="width: 19.5%;">
+                    <img src="{{ recommend_movie.poster_path }}" class="d-inline-block" alt="..." style="width: 100%;" title="{{ recommend_movie.movieNm }}">
+                    {% if recommend_movie.watchGradeNm == 19 %}
+                      <img src="{% static 'images/19.png' %}" class="position-absolute" style="right: 4%; top: 2%; width: 17%;">
+                    {% elif recommend_movie.watchGradeNm == 15 %}
+                      <img src="{% static 'images/15.png' %}" class="position-absolute" style="right: 4%; top: 2%; width: 17%;">
+                    {% elif recommend_movie.watchGradeNm == 12 %}
+                      <img src="{% static 'images/12.png' %}" class="position-absolute" style="right: 4%; top: 2%; width: 17%;">
+                    {% elif recommend_movie.watchGradeNm == 0 %}
+                      <img src="{% static 'images/0.png' %}" class="position-absolute" style="right: 4%; top: 2%; width: 17%;">
+                    {% endif %}
+                  </div>
+                </a>
+                {% endfor %}
+              </p>
+              </div>
+              <div class="tab-pane fade" id="rank">
+                <p>
+                  {% for recommend_movie in recommend_rank %}
+                  <a href="{% url 'movies:movie_detail' recommend_movie.pk %}" class="text-light">
+                    <div class="d-inline-block position-relative" style="width: 19.5%;">
+                      <img src="{{ recommend_movie.poster_path }}" class="d-inline-block" alt="..." style="width: 100%;" title="{{ recommend_movie.movieNm }}">
+                      {% if recommend_movie.watchGradeNm == 19 %}
+                        <img src="{% static 'images/19.png' %}" class="position-absolute" style="right: 4%; top: 2%; width: 17%;">
+                      {% elif recommend_movie.watchGradeNm == 15 %}
+                        <img src="{% static 'images/15.png' %}" class="position-absolute" style="right: 4%; top: 2%; width: 17%;">
+                      {% elif recommend_movie.watchGradeNm == 12 %}
+                        <img src="{% static 'images/12.png' %}" class="position-absolute" style="right: 4%; top: 2%; width: 17%;">
+                      {% elif recommend_movie.watchGradeNm == 0 %}
+                        <img src="{% static 'images/0.png' %}" class="position-absolute" style="right: 4%; top: 2%; width: 17%;">
+                      {% endif %}
+                    </div>
+                  </a>
+                {% endfor %}
+                </p>
+              </div>
+              <div class="tab-pane fade" id="cnt">
+                <p>
+                  {% for live_movie in manyReviewsMovies %}
+                  <a href="{% url 'movies:movie_detail' live_movie.pk %}" class="text-light">
+                    <div class="d-inline-block position-relative" style="width: 19.5%;">
+                      <img src="{{ live_movie.poster_path }}" class="d-inline-block" alt="..." style="width: 100%;" title="{{ live_movie.movieNm }}">
+                      {% if live_movie.watchGradeNm == 19 %}
+                        <img src="{% static 'images/19.png' %}" class="position-absolute" style="right: 4%; top: 2%; width: 17%;">
+                      {% elif live_movie.watchGradeNm == 15 %}
+                        <img src="{% static 'images/15.png' %}" class="position-absolute" style="right: 4%; top: 2%; width: 17%;">
+                      {% elif live_movie.watchGradeNm == 12 %}
+                        <img src="{% static 'images/12.png' %}" class="position-absolute" style="right: 4%; top: 2%; width: 17%;">
+                      {% elif live_movie.watchGradeNm == 0 %}
+                        <img src="{% static 'images/0.png' %}" class="position-absolute" style="right: 4%; top: 2%; width: 17%;">
+                      {% endif %}
+                    </div>
+                  </a>
+                {% endfor %}
+                </p>
+              </div>
+              <div class="tab-pane fade" id="live_rank">
+                <p>
+                  {% for live_movie in live_movies %}
+                  <a href="{% url 'movies:movie_detail' live_movie.pk %}" class="text-light">
+                    <div class="d-inline-block position-relative" style="width: 19.5%;">
+                      <img src="{{ live_movie.poster_path }}" class="d-inline-block" alt="..." style="width: 100%;" title="{{ live_movie.movieNm }}">
+                      {% if live_movie.watchGradeNm == 19 %}
+                        <img src="{% static 'images/19.png' %}" class="position-absolute" style="right: 4%; top: 2%; width: 17%;">
+                      {% elif live_movie.watchGradeNm == 15 %}
+                        <img src="{% static 'images/15.png' %}" class="position-absolute" style="right: 4%; top: 2%; width: 17%;">
+                      {% elif live_movie.watchGradeNm == 12 %}
+                        <img src="{% static 'images/12.png' %}" class="position-absolute" style="right: 4%; top: 2%; width: 17%;">
+                      {% elif live_movie.watchGradeNm == 0 %}
+                        <img src="{% static 'images/0.png' %}" class="position-absolute" style="right: 4%; top: 2%; width: 17%;">
+                      {% endif %}
+                    </div>
+                  </a>
+                {% endfor %}
+                </p>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+{% endblock %}

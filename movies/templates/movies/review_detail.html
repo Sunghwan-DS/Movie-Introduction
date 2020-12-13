@@ -1,0 +1,544 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+{% load bootstrap_pagination %}
+
+{% block body %}
+<div class="d-flex justify-content-between">
+<h1>{{review.title}}<span style="font-size: 30px; color:gray;"> :{{ movie.movieNm }}</span></h1>
+<div class="d-flex">
+<button class="btn btn-primary mx-1" style="height: 38px;" onclick="goBack()"><i class="fas fa-arrow-left"></i> 이전페이지</button>
+<a class="btn btn-primary mx-1" style="height: 38px;" href="{% url 'movies:movie_detail' movie.pk %}" role="button"><i class="far fa-file-video"></i> 영화정보</a>
+</div>
+</div>
+  <ul class="p-0 d-flex flex-row justify-content-between" style="list-style:none; font-size: large;">
+    <div class="d-flex flex-row">
+    <li class="mx-2"><a href="{% url 'accounts:detail' review.user.pk %}">{{review.user.nickname}}</a></li>
+    <li> | </li>
+    <li class="mx-2"><i class="far fa-star text-warning" title="평점"></i> :  {{review.rank}}</li>
+    <li> | </li>
+    <li class="mx-2"><i class="fas fa-eye" title="조회 수"></i> :  {{review.hit}}</li>
+    </div>
+    <div>
+    <li class="ml-1">{{review.created_at}}</li>
+    </div>
+  </ul>
+<hr>
+<p class="mx-5">{{review.content}}</p>
+<hr>
+<div class="d-flex justify-content-end">
+<div class="mx-1">
+  좋아요:
+  {% if request.user in review.like_users.all %}
+    <i class="fas fa-thumbs-up like-button" style="color:blue" data-id='{{ review.id }}'></i>
+  {% else %}
+    <i class="far fa-thumbs-up like-button" style="color:black" data-id='{{ review.id }}'></i>
+  {% endif %}
+<span class="like-count-{{review.id}}">{{ review.like_users.count }}</span>
+</div>
+<div class="mx-1">
+  싫어요:
+  {% if request.user in review.dislike_users.all %}
+    <i class="fas fa-thumbs-down dislike-button" style="color:red;" data-id='{{ review.id }}'></i>
+  {% else %}
+    <i class="far fa-thumbs-down dislike-button" style="color:black;" data-id='{{ review.id }}'></i>
+  {% endif %}
+  <span class="dislike-count-{{review.id}}">{{ review.dislike_users.count }}</span>
+</div>
+</div>
+{% if review.user == request.user %}
+    <div class="d-flex justify-content-end mt-2">
+      <a href="{% url 'movies:review_update' movie.pk review.pk %}"><button class="btn btn-primary mr-1">수정</button></a>
+      <form action="{% url 'movies:review_delete' review.movie.pk review.pk %}" method="POST">
+            {% csrf_token %}
+      <button type="button" class="btn btn-danger mx-1" data-toggle="modal" data-target="#exampleModal">
+        삭제
+      </button>
+    </div>
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                이 리뷰를 정말 삭제하시겠습니까?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                <form action="{% url 'movies:review_delete' movie.pk review.pk %}" method="POST" class="d-inline">
+                    {% csrf_token %}
+                    <button class="btn btn-danger">삭제</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+    </form>
+{% elif request.user.is_superuser %}
+    <div class="d-flex justify-content-end mt-2">
+      <a href="{% url 'movies:review_update' movie.pk review.pk %}"><button class="btn btn-primary mr-1">수정</button></a>
+      <form action="{% url 'movies:review_delete' review.movie.pk review.pk %}" method="POST">
+            {% csrf_token %}
+      <button type="button" class="btn btn-danger mx-1" data-toggle="modal" data-target="#exampleModal">
+        삭제
+      </button>
+    </div>
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">경고</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                이 리뷰를 정말 삭제하시겠습니까?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                <form action="{% url 'movies:review_delete' movie.pk review.pk %}" method="POST" class="d-inline">
+                    {% csrf_token %}
+                    <button class="btn btn-danger">삭제</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+    </form>
+{% endif %}
+
+<hr>
+
+<form action="{% url 'movies:comment_create' movie.pk review.pk %}" method="POST">
+    {% csrf_token %}
+    {% bootstrap_form comment_form %}
+    <div class="d-flex justify-content-end">
+    <button class="btn btn-primary mx-1">작성 <i class="fas fa-pencil-alt"></i></button>
+    </div>
+</form>
+
+
+
+<hr>
+{% for comment in bestComments %}
+    {% if comment.user == request.user  %}
+    <button type="button" class="btn btn-danger float-right ml-2" data-toggle="modal" data-target="#exampleModal2">
+      삭제
+    </button>
+    <div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel2">경고</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            이 댓글을 정말 삭제하시겠습니까?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+            <form action="{% url 'movies:comment_delete' movie.pk review.pk comment.pk %}" method="POST" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-danger">삭제</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% elif request.user.is_superuser  %}
+    <button type="button" class="btn btn-danger float-right ml-2" data-toggle="modal" data-target="#exampleModal2">
+      삭제
+    </button>
+    <div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel2">경고</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            이 댓글을 정말 삭제하시겠습니까?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+            <form action="{% url 'movies:comment_delete' movie.pk review.pk comment.pk %}" method="POST" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-danger">삭제</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    <ul class="list-unstyled">
+      <li>{{ comment.user.nickname }} <span class='text-secondary' style='font-size:14px'> |  {{ comment.created_at }}<!--{{ comment.updated_at }}--></span> <span class="badge badge-warning text-light">BEST</span></li>
+      <li>{{ comment.content }}</li>
+      <div class = "d-flex">
+      <div class="m-1">
+        좋아요:
+        {% if request.user in comment.like_users.all %}
+          <i class="fas fa-thumbs-up commentlike-button commentlike-button-{{comment.id}}" style="color:blue" data-id='{{ comment.id }}'></i>
+        {% else %}
+          <i class="far fa-thumbs-up commentlike-button commentlike-button-{{comment.id}}}" style="color:black" data-id='{{ comment.id }}'></i>
+        {% endif %}
+      <span class="commentlike-count-{{comment.id}}">{{ comment.like_users.count }}</span>
+      </div>
+      <div class="m-1">
+        싫어요:
+        {% if request.user in comment.dislike_users.all %}
+          <i class="fas fa-thumbs-down commentdislike-button commentdislike-button-{{comment.id}}" style="color:red;" data-id='{{ comment.id }}'></i>
+        {% else %}
+          <i class="far fa-thumbs-down commentdislike-button commentdislike-button-{{comment.id}}}" style="color:black;" data-id='{{ comment.id }}'></i>
+        {% endif %}
+        <span class="commentdislike-count-{{comment.id}}">{{ comment.dislike_users.count }}</span>
+      </div>
+      </div>
+    </ul>
+{% endfor %}
+{% for comment in page_obj %}
+    {% if comment.user == request.user  %}
+    <button type="button" class="btn btn-danger float-right ml-2" data-toggle="modal" data-target="#exampleModal2">
+      삭제
+    </button>
+    <div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel2">경고</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            이 댓글을 정말 삭제하시겠습니까?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+            <form action="{% url 'movies:comment_delete' movie.pk review.pk comment.pk %}" method="POST" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-danger">삭제</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% elif request.user.is_superuser  %}
+    <button type="button" class="btn btn-danger float-right ml-2" data-toggle="modal" data-target="#exampleModal2">
+      삭제
+    </button>
+    <div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel2">경고</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            이 댓글을 정말 삭제하시겠습니까?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+            <form action="{% url 'movies:comment_delete' movie.pk review.pk comment.pk %}" method="POST" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-danger">삭제</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle float-right" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          답글 <i class="fas fa-reply"></i>
+        </button>
+      <form class="dropdown-menu dropdown-menu-right p-4" action="{% url 'movies:reply_create' movie.pk review.pk comment.pk %}" method="POST">
+        {% csrf_token %}
+        {% bootstrap_form reply_form %}
+        <button type="submit" class="btn btn-primary float-right">작성 <i class="fas fa-pencil-alt"></i></button>
+      </form>
+    </div>
+    <ul class="list-unstyled">
+      <li>{{ comment.user.nickname }} <span class='text-secondary' style='font-size:14px'> |  {{ comment.created_at }}<!--{{ comment.updated_at }}--></span></li>
+      <li>{{ comment.content }}</li>
+      <div class = "d-flex">
+      <div class="m-1">
+        좋아요:
+        {% if request.user in comment.like_users.all %}
+          <i class="fas fa-thumbs-up commentlike-button commentlike-button-{{comment.id}}" style="color:blue" data-id='{{ comment.id }}'></i>
+        {% else %}
+          <i class="far fa-thumbs-up commentlike-button commentlike-button-{{comment.id}}}" style="color:black" data-id='{{ comment.id }}'></i>
+        {% endif %}
+      <span class="commentlike-count-{{comment.id}}">{{ comment.like_users.count }}</span>
+      </div>
+      <div class="m-1">
+        싫어요:
+        {% if request.user in comment.dislike_users.all %}
+          <i class="fas fa-thumbs-down commentdislike-button commentdislike-button-{{comment.id}}" style="color:red;" data-id='{{ comment.id }}'></i>
+        {% else %}
+          <i class="far fa-thumbs-down commentdislike-button commentdislike-button-{{comment.id}}}" style="color:black;" data-id='{{ comment.id }}'></i>
+        {% endif %}
+        <span class="commentdislike-count-{{comment.id}}">{{ comment.dislike_users.count }}</span>
+      </div>
+      </div>
+    </ul>
+    <ul class="list-unstyled">
+    {% for reply in comment.reply_set.all %}
+      {% if reply.user == request.user  %}
+      <button type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#exampleModal3">
+        삭제
+      </button>
+      <div class="modal fade" id="exampleModal3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel3" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel3">경고</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              이 답글을 정말 삭제하시겠습니까?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+              <form action="{% url 'movies:reply_delete' movie.pk review.pk comment.pk reply.pk %}" method="POST" class="d-inline">
+                  {% csrf_token %}
+                  <button class="btn btn-danger">삭제</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% elif request.user.is_superuser %}
+      <button type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#exampleModal3">
+        삭제
+      </button>
+      <div class="modal fade" id="exampleModal3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel3" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel3">경고</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              이 답글을 정말 삭제하시겠습니까?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+              <form action="{% url 'movies:reply_delete' movie.pk review.pk comment.pk reply.pk %}" method="POST" class="d-inline">
+                  {% csrf_token %}
+                  <button class="btn btn-danger">삭제</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ reply.user.nickname }} <span class='text-secondary' style='font-size:14px'> |  {{ reply.created_at }}<!--{{ comment.updated_at }}--></span></li>
+      <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ reply.content }}</li>
+      <div class = "d-flex">
+      <div class="m-1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        좋아요:
+        {% if request.user in reply.like_users.all %}
+          <i class="fas fa-thumbs-up replylike-button replylike-button-{{reply.id}}" style="color:blue" data-id='{{ reply.id }}'></i>
+        {% else %}
+          <i class="far fa-thumbs-up replylike-button replylike-button-{{reply.id}}}" style="color:black" data-id='{{ reply.id }}'></i>
+        {% endif %}
+      <span class="replylike-count-{{reply.id}}">{{ reply.like_users.count }}</span>
+      </div>
+      <div class="m-1">
+        싫어요:
+        {% if request.user in reply.dislike_users.all %}
+          <i class="fas fa-thumbs-down replydislike-button replydislike-button-{{reply.id}}" style="color:red;" data-id='{{ reply.id }}'></i>
+        {% else %}
+          <i class="far fa-thumbs-down replydislike-button replydislike-button-{{reply.id}}}" style="color:black;" data-id='{{ reply.id }}'></i>
+        {% endif %}
+        <span class="replydislike-count-{{reply.id}}">{{ reply.dislike_users.count }}</span>
+      </div>
+      </div>
+    {% endfor %}
+    </ul>
+<hr>
+{% endfor %}
+<div class="pagination justify-content-center">
+    {% bootstrap_paginate page_obj range=10 show_prev_next="false" show_first_last="true" %}
+</div>
+<br>
+
+<script>
+  const likeBtns = document.querySelectorAll('.like-button')
+  const dislikeBtns = document.querySelectorAll('.dislike-button')
+  likeBtns.forEach(likeBtn => {
+    likeBtn.addEventListener('click', function(event){
+      const reviewId = event.target.dataset.id
+      const movieId = {{ movie_id }}
+
+      axios.get(`/${movieId}/${reviewId}/like/`)
+      .then(response => {
+        document.querySelector(`.like-count-${reviewId}`).innerText = response.data.liked_count
+        document.querySelector(`.dislike-count-${reviewId}`).innerText = response.data.disliked_count
+        if (response.data.liked){
+          event.target.style.color = 'blue'
+          event.target.classList = 'fas fa-thumbs-up like-button'
+          for (var i = 0; i < dislikeBtns.length; i++){
+            dislikeBtns[i].style.color = 'black'
+            dislikeBtns[i].classList = 'far fa-thumbs-down dislike-button'
+          }
+
+        } else{
+          event.target.style.color = 'black'
+          event.target.classList = "far fa-thumbs-up like-button"
+        }
+      })
+    })
+  })
+
+  dislikeBtns.forEach(dislikeBtn => {
+    dislikeBtn.addEventListener('click', function(event){
+      const reviewId = event.target.dataset.id
+      const movieId = {{ movie_id }}
+
+      axios.get(`/${movieId}/${reviewId}/dislike/`)
+      .then(response => {
+        document.querySelector(`.like-count-${reviewId}`).innerText = response.data.liked_count
+        document.querySelector(`.dislike-count-${reviewId}`).innerText = response.data.disliked_count
+        if (response.data.disliked){
+          event.target.style.color = 'red'
+          event.target.classList = 'fas fa-thumbs-down dislike-button'
+
+          for (var i = 0; i < likeBtns.length; i++){
+            likeBtns[i].style.color = 'black'
+            likeBtns[i].classList = 'far fa-thumbs-up like-button'
+          }
+
+        } else{
+          event.target.style.color = 'black'
+          event.target.classList = "far fa-thumbs-down like-button"
+        }
+      })
+    })
+  })
+</script>
+
+<script>
+  const commentlikeBtns = document.querySelectorAll('.commentlike-button')
+  const commentdislikeBtns = document.querySelectorAll('.commentdislike-button')
+  commentlikeBtns.forEach(commentlikeBtn => {
+    commentlikeBtn.addEventListener('click', function(event){
+      const commentId = event.target.dataset.id
+
+      axios.get(`/comment/${commentId}/like/`)
+      .then(response => {
+        document.querySelector(`.commentlike-count-${commentId}`).innerText = response.data.commentliked_count
+        document.querySelector(`.commentdislike-count-${commentId}`).innerText = response.data.commentdisliked_count
+        if (response.data.commentliked){
+          event.target.style.color = 'blue'
+          event.target.classList = `fas fa-thumbs-up commentlike-button commentlike-button-${commentId}`
+          document.querySelector(`.commentdislike-button-${commentId}`).style.color = 'black'
+          document.querySelector(`.commentdislike-button-${commentId}`).classList = `far fa-thumbs-down commentdislike-button commentdislike-button-${commentId}`
+
+        } else{
+          event.target.style.color = 'black'
+          event.target.classList = `far fa-thumbs-up commentlike-button commentlike-button-${commentId}`
+        }
+      })
+    })
+  })
+
+  commentdislikeBtns.forEach(commentdislikeBtn => {
+    commentdislikeBtn.addEventListener('click', function(event){
+      const commentId = event.target.dataset.id
+
+      axios.get(`/comment/${commentId}/dislike/`)
+      .then(response => {
+        document.querySelector(`.commentlike-count-${commentId}`).innerText = response.data.commentliked_count
+        document.querySelector(`.commentdislike-count-${commentId}`).innerText = response.data.commentdisliked_count
+        if (response.data.commentdisliked){
+          event.target.style.color = 'red'
+          event.target.classList = `fas fa-thumbs-down commentdislike-button commentdislike-button-${commentId}`
+
+          document.querySelector(`.commentlike-button-${commentId}`).style.color = 'black'
+          document.querySelector(`.commentlike-button-${commentId}`).classList = `far fa-thumbs-up commentlike-button commentlike-button-${commentId}`
+
+        } else{
+          event.target.style.color = 'black'
+          event.target.classList = `far fa-thumbs-down commentlike-button commentlike-button-${commentId}`
+        }
+      })
+    })
+  })
+</script>
+
+
+<script>
+  const replylikeBtns = document.querySelectorAll('.replylike-button')
+  const replydislikeBtns = document.querySelectorAll('.replydislike-button')
+  replylikeBtns.forEach(replylikeBtn => {
+    replylikeBtn.addEventListener('click', function(event){
+      const replyId = event.target.dataset.id
+
+      axios.get(`/reply/${replyId}/like/`)
+      .then(response => {
+        document.querySelector(`.replylike-count-${replyId}`).innerText = response.data.replyliked_count
+        document.querySelector(`.replydislike-count-${replyId}`).innerText = response.data.replydisliked_count
+        if (response.data.replyliked){
+          event.target.style.color = 'blue'
+          event.target.classList = `fas fa-thumbs-up replylike-button replylike-button-${replyId}`
+          document.querySelector(`.replydislike-button-${replyId}`).style.color = 'black'
+          document.querySelector(`.replydislike-button-${replyId}`).classList = `far fa-thumbs-down replydislike-button replydislike-button-${replyId}`
+
+        } else{
+          event.target.style.color = 'black'
+          event.target.classList = `far fa-thumbs-up replylike-button replylike-button-${replyId}`
+        }
+      })
+    })
+  })
+
+  replydislikeBtns.forEach(replydislikeBtn => {
+    replydislikeBtn.addEventListener('click', function(event){
+      const replyId = event.target.dataset.id
+
+      axios.get(`/reply/${replyId}/dislike/`)
+      .then(response => {
+        document.querySelector(`.replylike-count-${replyId}`).innerText = response.data.replyliked_count
+        document.querySelector(`.replydislike-count-${replyId}`).innerText = response.data.replydisliked_count
+        if (response.data.replydisliked){
+          event.target.style.color = 'red'
+          event.target.classList = `fas fa-thumbs-down replydislike-button replydislike-button-${replyId}`
+
+          document.querySelector(`.replylike-button-${replyId}`).style.color = 'black'
+          document.querySelector(`.replylike-button-${replyId}`).classList = `far fa-thumbs-up replylike-button replylike-button-${replyId}`
+
+        } else{
+          event.target.style.color = 'black'
+          event.target.classList = `far fa-thumbs-down replylike-button replylike-button-${replyId}`
+        }
+      })
+    })
+  })
+</script>
+
+
+
+<script type="text/javascript">
+  function goBack() {
+    window.history.back();
+}
+</script>
+
+
+{% endblock %}
+
